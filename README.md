@@ -28,17 +28,10 @@ Follow the install instructions for that instead, and enable it in the `White's 
 5. Download `EventTracker.dll` from the [Releases page](https://github.com/stxticOVFL/EventTracker/releases/latest) and drop it in the `Mods` folder.
 
 ## Building & Contributing
-This project uses Visual Studio 2022 as its project manager. When opening the Visual Studio solution, ensure your references are corrected by right clicking and selecting `Add Reference...` as shown below. 
-Most will be in `Neon White_data/Managed`. Some will be in `MelonLoader/net35`, **not** `net6`. Select the `MelonPrefManager` and `UniverseLib` mods for those references. 
-If you get any weird errors, try deleting the references and re-adding them manually.
+This project is based on [**NWCommon.**](https://github.com/stxticOVFL/NWCommon/tree/master?tab=readme-ov-file) 
+Follow the build instructions on the repository.
 
-![image](https://github.com/stxticOVFL/EventTracker/assets/29069561/ed3d94e3-52f2-48ea-9d69-84b018cf4336)
-
-Once your references are correct, build using the keybind or like the picture below.
-
-![image](https://github.com/stxticOVFL/EventTracker/assets/29069561/40a50e46-5fc2-4acc-a3c9-4d4edb8c7d83)
-
-Make any edits as needed, and make a PR for review. PRs are very appreciated.
+Make any edits as needed, and make a PR for review. PRs are very appreciated!
 
 ### Additional Notes
 It's recommended to add `--melonloader.hideconsole` to your game launch properties (Steam -> Right click Neon White -> Properties -> Launch Options) to hide the console that MelonLoader spawns.
