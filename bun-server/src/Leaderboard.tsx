@@ -39,6 +39,7 @@ export function Leaderboard() {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [leaderboardType, setLeaderboardType] = useState<"solo" | "team">("solo");
 
   const allPlayers = useMemo(() => {
     return Array.from(new Set(entries.map(e => e.name))).sort();
@@ -113,50 +114,76 @@ export function Leaderboard() {
     return `${seconds}.${milliseconds.toString().padStart(3, '0')}`;
   };
 
-  const calculateOverall = () => {
+  const calculateOverall = (mode: "solo" | "team") => {
     if (!config || entries.length === 0) return { average: [], weighted: [] };
 
-    const players = Array.from(new Set(entries.map(e => e.name)));
-    const totalPlayers = players.length;
+    let participants: string[] = [];
+    if (mode === "solo") {
+      participants = Array.from(new Set(entries.map(e => e.name)));
+    } else {
+      participants = teams.map(t => `${t.name1} & ${t.name2}`);
+    }
 
-    const playerStats: Record<string, { totalRank: number; totalPoints: number; levelsPlayed: number }> = {};
-    players.forEach(p => {
-      playerStats[p] = { totalRank: 0, totalPoints: 0, levelsPlayed: 0 };
+    const totalParticipants = participants.length;
+    if (totalParticipants === 0) return { average: [], weighted: [] };
+
+    const statsMap: Record<string, { totalRank: number; totalPoints: number; levelsPlayed: number }> = {};
+    participants.forEach(p => {
+      statsMap[p] = { totalRank: 0, totalPoints: 0, levelsPlayed: 0 };
     });
 
     config.levels.forEach(level => {
-      // Calculate best times for ranking
-      const levelEntries = entries
-        .filter(e => e.levelId === level.id)
-        .sort((a, b) => a.time - b.time);
+      let levelRankings: { name: string; time: number }[] = [];
 
-      const playerRanks: Record<string, number> = {};
-      levelEntries.forEach((entry, index) => {
-        if (!playerRanks[entry.name]) {
-          playerRanks[entry.name] = index + 1;
+      if (mode === "solo") {
+        levelRankings = entries
+          .filter(e => e.levelId === level.id)
+          .map(e => ({ name: e.name, time: e.time }))
+          .sort((a, b) => a.time - b.time);
+      } else {
+        const levelEntries = entries.filter(e => e.levelId === level.id);
+        const teamTimes = teams.map(team => {
+          const e1 = levelEntries.find(e => e.name === team.name1);
+          const e2 = levelEntries.find(e => e.name === team.name2);
+          if (e1 && e2) {
+            return {
+              name: `${team.name1} & ${team.name2}`,
+              time: e1.time + e2.time
+            };
+          }
+          return null;
+        }).filter(t => t !== null) as { name: string; time: number }[];
+
+        levelRankings = teamTimes.sort((a, b) => a.time - b.time);
+      }
+
+      const ranksMap: Record<string, number> = {};
+      levelRankings.forEach((entry, index) => {
+        if (!ranksMap[entry.name]) {
+          ranksMap[entry.name] = index + 1;
         }
       });
 
-      players.forEach(player => {
-        const stats = playerStats[player];
+      participants.forEach(participant => {
+        const stats = statsMap[participant];
         if (!stats) return;
 
-        const rank = playerRanks[player];
+        const rank = ranksMap[participant];
         if (rank) {
           stats.totalRank += rank;
           stats.levelsPlayed += 1;
 
-          let points = totalPlayers - rank + 1;
+          let points = totalParticipants - rank + 1;
           if (rank === 1) points += 5; // Bonus for 1st place
           stats.totalPoints += points;
         } else {
-          stats.totalRank += totalPlayers;
+          stats.totalRank += totalParticipants;
         }
       });
     });
 
-    const average = players.map(p => {
-      const stats = playerStats[p];
+    const average = participants.map(p => {
+      const stats = statsMap[p];
       return {
         name: p,
         averageRank: stats ? stats.totalRank / config.levels.length : 0,
@@ -164,8 +191,8 @@ export function Leaderboard() {
       };
     }).sort((a, b) => a.averageRank - b.averageRank);
 
-    const weighted = players.map(p => {
-      const stats = playerStats[p];
+    const weighted = participants.map(p => {
+      const stats = statsMap[p];
       return {
         name: p,
         points: stats ? stats.totalPoints : 0,
@@ -176,7 +203,7 @@ export function Leaderboard() {
     return { average, weighted };
   };
 
-  const { average, weighted } = calculateOverall();
+  const { average, weighted } = calculateOverall(leaderboardType);
 
   if (!config) {
     return <div className="text-center py-8 text-muted-foreground">Loading configuration...</div>;
@@ -204,6 +231,23 @@ export function Leaderboard() {
         </div>
       </div>
 
+      <div className="flex justify-center mb-6">
+        <div className="bg-muted p-1 rounded-lg inline-flex">
+          <button
+            className={`px-8 py-2 rounded-md text-sm font-medium transition-colors ${leaderboardType === 'solo' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:bg-background/50'}`}
+            onClick={() => setLeaderboardType('solo')}
+          >
+            Solo
+          </button>
+          <button
+            className={`px-8 py-2 rounded-md text-sm font-medium transition-colors ${leaderboardType === 'team' ? 'bg-background shadow-sm' : 'text-muted-foreground hover:bg-background/50'}`}
+            onClick={() => setLeaderboardType('team')}
+          >
+            Team
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>
@@ -220,14 +264,17 @@ export function Leaderboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {average.map((player, index) => (
-                  <TableRow key={player.name} className={player.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className={player.name === currentUser ? "font-bold" : ""}>{player.name}</TableCell>
-                    <TableCell className="text-right font-mono">{player.averageRank.toFixed(2)}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
-                  </TableRow>
-                ))}
+                {average.map((player, index) => {
+                  const isHighlighted = currentUser && (leaderboardType === "solo" ? player.name === currentUser : player.name.includes(currentUser));
+                  return (
+                    <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className={isHighlighted ? "font-bold" : ""}>{player.name}</TableCell>
+                      <TableCell className="text-right font-mono">{player.averageRank.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 {average.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">No data available</TableCell>
@@ -253,14 +300,17 @@ export function Leaderboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {weighted.map((player, index) => (
-                  <TableRow key={player.name} className={player.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
-                    <TableCell className="font-medium">{index + 1}</TableCell>
-                    <TableCell className={player.name === currentUser ? "font-bold" : ""}>{player.name}</TableCell>
-                    <TableCell className="text-right font-mono">{player.points}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
-                  </TableRow>
-                ))}
+                {weighted.map((player, index) => {
+                  const isHighlighted = currentUser && (leaderboardType === "solo" ? player.name === currentUser : player.name.includes(currentUser));
+                  return (
+                    <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
+                      <TableCell className="font-medium">{index + 1}</TableCell>
+                      <TableCell className={isHighlighted ? "font-bold" : ""}>{player.name}</TableCell>
+                      <TableCell className="text-right font-mono">{player.points}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
+                    </TableRow>
+                  );
+                })}
                 {weighted.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center py-4 text-muted-foreground">No data available</TableCell>
@@ -272,55 +322,57 @@ export function Leaderboard() {
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Solo Leaderboards</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {config.levels.map(level => {
-            const levelEntries = entries
-              .filter(e => e.levelId === level.id)
-              .sort((a, b) => a.time - b.time);
-
-            return (
-              <Card key={level.id} className="flex flex-col">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">{level.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-[60px]">#</TableHead>
-                        <TableHead>Player</TableHead>
-                        <TableHead className="text-right">Tries</TableHead>
-                        <TableHead className="text-right">Best Time</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {levelEntries.slice(0, 10).map((entry, index) => (
-                        <TableRow key={entry.id} className={entry.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
-                          <TableCell className="font-medium">{index + 1}</TableCell>
-                          <TableCell className={`truncate max-w-[120px] ${entry.name === currentUser ? "font-bold" : ""}`} title={entry.name}>{entry.name}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{entry.tries || 1}</TableCell>
-                          <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
-                        </TableRow>
-                      ))}
-                      {levelEntries.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center py-4 text-muted-foreground text-sm">No times yet</TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {teams.length > 0 && (
+      {leaderboardType === "solo" && (
         <div className="space-y-4 pt-12">
-          <h2 className="text-2xl font-bold tracking-tight">Team Leaderboards</h2>
+          <h2 className="text-2xl font-bold tracking-tight">Solo Level Leaderboards</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {config.levels.map(level => {
+              const levelEntries = entries
+                .filter(e => e.levelId === level.id)
+                .sort((a, b) => a.time - b.time);
+
+              return (
+                <Card key={level.id} className="flex flex-col">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">{level.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[60px]">#</TableHead>
+                          <TableHead>Player</TableHead>
+                          <TableHead className="text-right">Tries</TableHead>
+                          <TableHead className="text-right">Best Time</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {levelEntries.slice(0, 10).map((entry, index) => (
+                          <TableRow key={entry.id} className={entry.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
+                            <TableCell className="font-medium">{index + 1}</TableCell>
+                            <TableCell className={`truncate max-w-[120px] ${entry.name === currentUser ? "font-bold" : ""}`} title={entry.name}>{entry.name}</TableCell>
+                            <TableCell className="text-right text-muted-foreground">{entry.tries || 1}</TableCell>
+                            <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
+                          </TableRow>
+                        ))}
+                        {levelEntries.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={4} className="text-center py-4 text-muted-foreground text-sm">No times yet</TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {leaderboardType === "team" && teams.length > 0 && (
+        <div className="space-y-4 pt-12">
+          <h2 className="text-2xl font-bold tracking-tight">Team Level Leaderboards</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {config.levels.map(level => {
               const levelEntries = entries.filter(e => e.levelId === level.id);
