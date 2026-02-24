@@ -1,3 +1,4 @@
+import "./index.css";
 import { Leaderboard } from "./Leaderboard";
 
 export function App() {

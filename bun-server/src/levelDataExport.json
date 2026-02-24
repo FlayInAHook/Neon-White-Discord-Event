@@ -1,0 +1,629 @@
+﻿{
+	"allLevels": [
+		{
+			"id": "TUT_MOVEMENT",
+			"name": "Bewegung",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_SHOOTINGRANGE",
+			"name": "Schießplatz",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "SLUGGER",
+			"name": "Kanonier",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_FROG",
+			"name": "Kaskade",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_JUMP",
+			"name": "Erhöhen",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "GRID_TUT_BALLOON",
+			"name": "Aufprallen",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_BOMB2",
+			"name": "Läutern",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_BOMBJUMP",
+			"name": "Klettern",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "TUT_FASTTRACK",
+			"name": "Schnellspur",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "GRID_PORT",
+			"name": "Glashafen",
+			"chapterName": "Wiedergeburt"
+		},
+		{
+			"id": "GRID_PAGODA",
+			"name": "In die Lüfte",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "TUT_RIFLE",
+			"name": "Viel Erfolg",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "TUT_RIFLEJOCK",
+			"name": "Sprinter",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "TUT_DASHENEMY",
+			"name": "Brutalo",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_JUMPDASH",
+			"name": "Ausgebreitet",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_SMACKDOWN",
+			"name": "Handgemenge",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_MEATY_BALLOONS",
+			"name": "Laufsteg",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_FAST_BALLOON",
+			"name": "Überholspur",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_DRAGON2",
+			"name": "Unterscheiden",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "GRID_DASHDANCE",
+			"name": "Tänzer",
+			"chapterName": "Der innere Killer"
+		},
+		{
+			"id": "TUT_GUARDIAN",
+			"name": "Wächter",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "TUT_UZI",
+			"name": "Stampfen",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "TUT_JUMPER",
+			"name": "Springer",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "TUT_BOMB",
+			"name": "Sprint-Turm",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_DESCEND",
+			"name": "Abstieg",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_STAMPEROUT",
+			"name": "Bohrer",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_CRUISE",
+			"name": "Kanäle",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_SPRINT",
+			"name": "Sprint",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_MOUNTAIN",
+			"name": "Berg",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_SUPERKINETIC",
+			"name": "Superkinetisch",
+			"chapterName": "Only Shallow"
+		},
+		{
+			"id": "GRID_ARRIVAL",
+			"name": "Ankunft",
+			"chapterName": "Die Altstadt"
+		},
+		{
+			"id": "FLOATING",
+			"name": "Vergessene Stadt",
+			"chapterName": "Die Altstadt"
+		},
+		{
+			"id": "GRID_BOSS_YELLOW",
+			"name": "Uhrturm",
+			"chapterName": "Die Altstadt"
+		},
+		{
+			"id": "GRID_HOPHOP",
+			"name": "Feuerball",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_RINGER_TUTORIAL",
+			"name": "Ringer",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_RINGER_EXPLORATION",
+			"name": "Cleaner",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_HOPSCOTCH",
+			"name": "Lagerhaus",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_BOOM",
+			"name": "Bumm",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_SNAKE_IN_MY_BOOT",
+			"name": "Straßen",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_FLOCK",
+			"name": "Schritte",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_BOMBS_AHOY",
+			"name": "Abriss",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_ARCS",
+			"name": "Bögen",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "GRID_APARTMENT",
+			"name": "Wohnung",
+			"chapterName": "Heilender Brand"
+		},
+		{
+			"id": "TUT_TRIPWIRE",
+			"name": "Hängende Gärten",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_TANGLED",
+			"name": "Verworren",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_HUNT",
+			"name": "Wasserwerk",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_CANNONS",
+			"name": "Not-Aus",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_FALLING",
+			"name": "Fallend",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "TUT_SHOCKER2",
+			"name": "Schocker",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "TUT_SHOCKER",
+			"name": "Bouquet",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_PREPARE",
+			"name": "Vorbereiten",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_TRIPMAZE",
+			"name": "Mit Fallen gespickt",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "GRID_RACE",
+			"name": "Rennen",
+			"chapterName": "Bund"
+		},
+		{
+			"id": "TUT_FORCEFIELD2",
+			"name": "Blase",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_SHIELD",
+			"name": "Schild",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "SA L VAGE2",
+			"name": "Aussicht",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_VERTICAL",
+			"name": "Platzen",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_MINEFIELD",
+			"name": "Minenfeld",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "TUT_MIMIC",
+			"name": "Imitator",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_MIMICPOP",
+			"name": "Auslöser",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_SWARM",
+			"name": "Gewächshaus",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_SWITCH",
+			"name": "Sichern",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "GRID_TRAPS2",
+			"name": "Zünden",
+			"chapterName": "Abrechnung"
+		},
+		{
+			"id": "TUT_ROCKETJUMP",
+			"name": "Himmelsgrenze",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "TUT_ZIPLINE",
+			"name": "Seilrutsche",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_CLIMBANG",
+			"name": "Schaukel",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_ROCKETUZI",
+			"name": "Schacht",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_CRASHLAND",
+			"name": "Absturz",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_ESCALATE",
+			"name": "Aufstieg",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_SPIDERCLAUS",
+			"name": "Unmittelbar",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_FIRECRACKER_2",
+			"name": "Feuerwerkskörper",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_SPIDERMAN",
+			"name": "Serie",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_DESTRUCTION",
+			"name": "Spiegel",
+			"chapterName": "Segnung"
+		},
+		{
+			"id": "GRID_HEAT",
+			"name": "Eskalation",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_BOLT",
+			"name": "Eilen",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_PON",
+			"name": "Erfolgsserie",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_CHARGE",
+			"name": "Freier Fall",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_MIMICFINALE",
+			"name": "Chaos",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_BARRAGE",
+			"name": "Sperrfeuer",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_1GUN",
+			"name": "Anwesen",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_HECK",
+			"name": "Fallendraht",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_ANTFARM",
+			"name": "Querschläger",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_FORTRESS",
+			"name": "Festung",
+			"chapterName": "Apokryphen"
+		},
+		{
+			"id": "GRID_GODTEMPLE_ENTRY",
+			"name": "Heiliger Boden",
+			"chapterName": "Der Dritte Tempel"
+		},
+		{
+			"id": "GRID_BOSS_GODSDEATHTEMPLE",
+			"name": "Der Dritte Tempel",
+			"chapterName": "Der Dritte Tempel"
+		},
+		{
+			"id": "GRID_EXTERMINATOR",
+			"name": "Rausch",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_FEVER",
+			"name": "Durchbruch",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_SKIPSLIDE",
+			"name": "Gleiten",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_CLOSER",
+			"name": "Näher",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_HIKE",
+			"name": "Wanderung",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_SKIP",
+			"name": "Schalter",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_CEILING",
+			"name": "Zugang",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_BOOP",
+			"name": "Versammlung",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_TRIPRAP",
+			"name": "Reihenfolge",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "GRID_ZIPRAP",
+			"name": "Marathon",
+			"chapterName": "500-Kilo-Schmetterling"
+		},
+		{
+			"id": "TUT_ORIGIN",
+			"name": "Opfer",
+			"chapterName": "Hand Gottes"
+		},
+		{
+			"id": "GRID_BOSS_RAPTURE",
+			"name": "Absolution",
+			"chapterName": "Hand Gottes"
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_PISTOL",
+			"name": "Erhebungsdurchquerung I",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_PISTOL_SHOOT",
+			"name": "Erhebungsdurchquerung II",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_MACHINEGUN",
+			"name": "Läuterungsdurchquerung",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_RIFLE_2",
+			"name": "Durchquerung „Viel Erfolg“",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_UZI2",
+			"name": "Stampfdurchquerung",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_SHOTGUN",
+			"name": "Feuerballdurchquerung",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_OBSTACLE_ROCKETLAUNCHER",
+			"name": "Herrschaftsdurchquerung",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_RAPTURE_QUEST",
+			"name": "Durchquerung „Buch des Lebens“",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_SUNSET_FLIP_POWERBOMB",
+			"name": "Sunset Flip Powerbomb",
+			"chapterName": null
+		},
+		{
+			"id": "GRID_BALLOONLAIR",
+			"name": "Ballonberg",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_BARREL_CLIMB",
+			"name": "Kletterhalle",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_FISHERMAN_SUPLEX",
+			"name": "Fisherman Suplex",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_STF",
+			"name": "STF",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_ARENASIXNINE",
+			"name": "Arena",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_ATTITUDE_ADJUSTMENT",
+			"name": "Einstellungsänderung",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_ROCKETGODZ",
+			"name": "Rakete",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_DODGER",
+			"name": "Knast",
+			"chapterName": null
+		},
+		{
+			"id": "GRID_GLASSPATH",
+			"name": "Würgegriff",
+			"chapterName": null
+		},
+		{
+			"id": "GRID_GLASSPATH2",
+			"name": "Kette",
+			"chapterName": null
+		},
+		{
+			"id": "GRID_HELLVATOR",
+			"name": "Höllenaufzug",
+			"chapterName": null
+		},
+		{
+			"id": "GRID_GLASSPATH3",
+			"name": "Rasierklinge",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_ALL_SEEING_EYE",
+			"name": "Allsehendes Auge",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_RESIDENTSAWB",
+			"name": "Resident Saw I",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_RESIDENTSAW",
+			"name": "Resident Saw II",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_GREEN_MEMORY",
+			"name": "???",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_GREEN_MEMORY_2",
+			"name": "???",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_GREEN_MEMORY_3",
+			"name": "???",
+			"chapterName": null
+		},
+		{
+			"id": "SIDEQUEST_GREEN_MEMORY_4",
+			"name": "???",
+			"chapterName": null
+		}
+	]
+}

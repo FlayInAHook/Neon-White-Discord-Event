@@ -1,14 +1,28 @@
 import { serve } from "bun";
 import { addEntry, getBestTimes, getLeaderboard } from "./db";
 import index from "./index.html";
+import levelData from "./levelDataExport.json";
 
 const API_PASSWORD = process.env.API_PASSWORD || "default_password";
+const CURRENT_CHAPTER = process.env.CURRENT_CHAPTER || "Wiedergeburt";
+
+const currentChapterLevels = levelData.allLevels.filter(l => l.chapterName === CURRENT_CHAPTER);
+const currentChapterLevelIds = new Set(currentChapterLevels.map(l => l.id));
 
 const server = serve({
   port: 3456,
   routes: {
     // Serve index.html for all unmatched routes.
     "/*": index,
+
+    "/api/config": {
+      async GET() {
+        return Response.json({
+          currentChapter: CURRENT_CHAPTER,
+          levels: currentChapterLevels
+        });
+      }
+    },
 
     "/api": {
       async GET(req) {
@@ -26,6 +40,9 @@ const server = serve({
           data = getLeaderboard(levelId || undefined);
         }
         
+        // Filter data to only include levels from the current chapter
+        data = data.filter(entry => currentChapterLevelIds.has(entry.levelId));
+        
         return Response.json(data);
       },
       async POST(req) {
@@ -39,6 +56,10 @@ const server = serve({
 
           if (!name || !levelId || typeof time !== "number") {
             return new Response("Bad Request", { status: 400 });
+          }
+
+          if (!currentChapterLevelIds.has(levelId)) {
+            return new Response("Level not in current chapter", { status: 400 });
           }
 
           addEntry(name, levelId, time);
