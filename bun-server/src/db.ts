@@ -44,11 +44,12 @@ export interface LeaderboardEntry {
   created_at: string;
 }
 
-export function addEntry(name: string, levelId: string, time: number, status: string = 'completed'): { isPB: boolean, isWR: boolean, previousBestTime?: number, previousRecordHolder?: string } {
+export function addEntry(name: string, levelId: string, time: number, status: string = 'completed'): { isPB: boolean, isWR: boolean, previousBestTime?: number, previousWRTime?: number, previousRecordHolder?: string } {
   // Check previous bests
   let isPB = false;
   let isWR = false;
   let previousBestTime: number | undefined;
+  let previousWRTime: number | undefined;
   let previousRecordHolder: string | undefined;
 
   if (status === 'completed') {
@@ -84,6 +85,10 @@ export function addEntry(name: string, levelId: string, time: number, status: st
     if (userBest !== null) {
       previousBestTime = userBest;
     }
+
+    if (bestOverall !== null && bestOverall !== undefined) {
+      previousWRTime = bestOverall;
+    }
   }
 
   const query = db.query(`
@@ -92,7 +97,7 @@ export function addEntry(name: string, levelId: string, time: number, status: st
   `);
   query.run({ $name: name, $levelId: levelId, $time: time, $status: status });
 
-  return { isPB, isWR, previousBestTime, previousRecordHolder };
+  return { isPB, isWR, previousBestTime, previousWRTime, previousRecordHolder };
 }
 
 export function getLeaderboard(levelId?: string): LeaderboardEntry[] {

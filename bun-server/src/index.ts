@@ -84,14 +84,14 @@ const server = serve({
 
           console.log("Received time", time, "with status", status);
 
-          const { isPB, isWR, previousBestTime, previousRecordHolder } = addEntry(name, levelId, time, status || 'completed');
+          const { isPB, isWR, previousBestTime, previousWRTime, previousRecordHolder } = addEntry(name, levelId, time, status || 'completed');
 
-          if (isWR && status === 'completed' && previousBestTime !== undefined && DISCORD_WEBHOOK_URL) {
+          if (isWR && status === 'completed' && previousWRTime !== undefined && DISCORD_WEBHOOK_URL) {
             const levelInfo = currentChapterLevels.find(l => l.id === levelId);
             const levelName = levelInfo ? levelInfo.name : levelId;
 
-            const timeDiffStr = previousBestTime
-              ? ` (-${formatTime(previousBestTime - time)})`
+            const timeDiffStr = previousWRTime
+              ? ` (-${formatTime(previousWRTime - time)})`
               : '';
 
             let contentStr = "";
