@@ -354,9 +354,8 @@ namespace EventTracker
                             levels.Add(new Dictionary<string, string>
                             {
                                 { "id", l.levelID },
-                                { "name", l.levelDisplayName },
-                                { "betterName", LocalizationManager.GetTranslation(l.levelDisplayName)},
-                                { "chapter", LocalizationManager.GetTranslation(mission.missionDisplayName) }
+                                { "name", LocalizationManager.GetTranslation("Interface/LEVELNAME_" + l.levelID) },
+                                { "chapterName", LocalizationManager.GetTranslation(mission.missionDisplayName) }
                             });
                         }
                     }
@@ -367,13 +366,26 @@ namespace EventTracker
                     { "allLevels", levels }
                 };
                 string json = JSON.Dump(data, EncodeOptions.PrettyPrint);
+                
+                // Unescape non-ASCII unicode characters
+                json = System.Text.RegularExpressions.Regex.Replace(json, @"\\u([0-9a-fA-F]{4})", m => {
+                    int codePoint = int.Parse(m.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
+                    return codePoint >= 0x80 ? ((char)codePoint).ToString() : m.Value;
+                });
+
                 string filename = "levelDataExport.json";
 
                 string path = TrackerHolder.GetGhostDirectory();
                 //string threeParentsUp = @"..\..\..";
                 //path = Path.GetFullPath(Path.Combine(path, threeParentsUp));
-                File.WriteAllText(Path.Combine(path, filename), json);
+                File.WriteAllText(Path.Combine(path, filename), json, System.Text.Encoding.UTF8);
                 MelonLogger.Msg($"Exported level data to {Path.Combine(path, filename)}");
+
+                /*try {
+                    File.WriteAllLines(Path.Combine(path, "terms.txt"), LocalizationManager.GetTermsList().ToArray());
+                } catch (Exception ex) {
+                    MelonLogger.Error($"Failed to dump terms: {ex}");
+                }*/
             }
             catch (Exception e)
             {
