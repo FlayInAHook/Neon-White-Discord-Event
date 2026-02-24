@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, MessageFlags, PermissionsBitField, REST, Routes, SlashCommandBuilder } from "discord.js";
+import { Client, GatewayIntentBits, MessageFlags, REST, Routes, SlashCommandBuilder } from "discord.js";
 import { createTeam, deleteTeam, linkAccount } from "./db";
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -21,13 +21,13 @@ const commands = [
   new SlashCommandBuilder()
     .setName("team_create")
     .setDescription("Create a new team of two players (Admin Only)")
-    .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+    //.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
     .addStringOption(option => option.setName("player1").setDescription("Exact in-game name of Player 1").setRequired(true))
     .addStringOption(option => option.setName("player2").setDescription("Exact in-game name of Player 2").setRequired(true)),
   new SlashCommandBuilder()
     .setName("team_delete")
     .setDescription("Delete an existing team (Admin Only)")
-    .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+    //.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
     .addStringOption(option => option.setName("player1").setDescription("Exact in-game name of Player 1").setRequired(true))
     .addStringOption(option => option.setName("player2").setDescription("Exact in-game name of Player 2").setRequired(true)),
 ];

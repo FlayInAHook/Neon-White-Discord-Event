@@ -130,8 +130,8 @@ export function getBestTimes(): LeaderboardEntry[] {
       MIN(created_at) as created_at
     FROM leaderboard
     GROUP BY name, levelId
-    HAVING time IS NOT NULL
-    ORDER BY time ASC
+    HAVING MIN(CASE WHEN status = 'completed' THEN time END) IS NOT NULL
+    ORDER BY MIN(CASE WHEN status = 'completed' THEN time END) ASC
   `);
   return query.all() as LeaderboardEntry[];
 }
