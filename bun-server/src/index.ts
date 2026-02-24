@@ -24,7 +24,7 @@ const currentChapterLevels = levelData.allLevels.filter(l => l.chapterName === C
 const currentChapterLevelIds = new Set(currentChapterLevels.map(l => l.id));
 
 const server = serve({
-  port: 3456,
+  port: 3340,
   routes: {
     // Serve index.html for all unmatched routes.
     "/*": index,

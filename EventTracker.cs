@@ -210,7 +210,7 @@ namespace EventTracker
 
                 MegaGeilCategory = MelonPreferences.CreateCategory("Mega Geil Event");
                 LeaderboardName = MegaGeilCategory.CreateEntry("Leaderboard Name", "Player", description: "Your name on the leaderboard.");
-                ApiServer = MegaGeilCategory.CreateEntry("API Server", "http://localhost:3456/api", description: "The API server to send your times to.");
+                ApiServer = MegaGeilCategory.CreateEntry("API Server", "https://neonwhite.flayinahook.de/api", description: "The API server to send your times to.");
                 ApiPassword = MegaGeilCategory.CreateEntry("API Password", "", description: "The password to send with your times.");
                 ExportKey = MegaGeilCategory.CreateEntry("Export Data Key", KeyCode.F6, description: "Pressing the assigned key will export level win data to a .json file.");
             }
