@@ -434,3 +434,5 @@ NWConfig.props
 !NWConfig.props.base
 
 bun-server/leaderboard.sqlite
+
+bun-server/bun-server.zip

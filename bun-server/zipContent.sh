@@ -1,0 +1,1 @@
+git archive --worktree-attributes HEAD -o ${PWD##*/}.zip
