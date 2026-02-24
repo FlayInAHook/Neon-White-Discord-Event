@@ -60,6 +60,8 @@ namespace EventTracker
                 if (InputManager.GetKeyDown(Settings.PlaceKey.Value) && Settings.UseJSON.Value && Settings.PlaceVisible.Value)
                     holder.PlaceTrigger();
             }
+            if (InputManager.GetKeyDown(Settings.ExportKey.Value))
+                Hooks.ExportDataAsJSON();
             if (Hooks.dnfTimer > 0)
                 Hooks.dnfTimer -= Time.unscaledDeltaTime;
             if (Hooks.parryTimer > 0)
@@ -143,6 +145,12 @@ namespace EventTracker
             public static MelonPreferences_Entry<PlacementShapes> DefaultShape;
             public static MelonPreferences_Entry<float> DefaultSize;
 
+            public static MelonPreferences_Category MegaGeilCategory;
+            public static MelonPreferences_Entry<string> LeaderboardName;
+            public static MelonPreferences_Entry<string> ApiServer;
+            public static MelonPreferences_Entry<string> ApiPassword;
+            public static MelonPreferences_Entry<KeyCode> ExportKey;
+
             public static void Register()
             {
                 MainCategory = MelonPreferences.CreateCategory("Event Tracker");
@@ -199,6 +207,12 @@ namespace EventTracker
                 PlaceRemove = AdvancedCategory.CreateEntry("Remove Trigger Key", KeyCode.LeftBracket, description: "The key to remove and save a trigger using the below default settings.");
                 DefaultShape = AdvancedCategory.CreateEntry("Trigger Default Shape", PlacementShapes.Plane, description: "The default shape to use.\nPlanes are one-sided, so they will be placed opposite to where you face, completely vertical to make it easier.");
                 DefaultSize = AdvancedCategory.CreateEntry("Trigger Default Size", 15f, description: "The default size of the placed trigger.", validator: new MinOnly<float>(0));
+
+                MegaGeilCategory = MelonPreferences.CreateCategory("Mega Geil Event");
+                LeaderboardName = MegaGeilCategory.CreateEntry("Leaderboard Name", "Player", description: "Your name on the leaderboard.");
+                ApiServer = MegaGeilCategory.CreateEntry("API Server", "http://localhost:3456/api", description: "The API server to send your times to.");
+                ApiPassword = MegaGeilCategory.CreateEntry("API Password", "", description: "The password to send with your times.");
+                ExportKey = MegaGeilCategory.CreateEntry("Export Data Key", KeyCode.F6, description: "Pressing the assigned key will export level win data to a .json file.");
             }
         }
 

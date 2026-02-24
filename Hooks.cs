@@ -1,10 +1,13 @@
 ﻿using EventTracker.Objects;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
 using I2.Loc;
 using MelonLoader;
 using HarmonyLib;
+using MelonLoader.TinyJSON;
 
 namespace EventTracker
 {
@@ -283,12 +286,101 @@ namespace EventTracker
                 Game game = Singleton<Game>.Instance;
                 long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
                 EventTracker.holder.Reveal(best > game.GetCurrentLevelTimerMicroseconds(), !dnf);
+
+                SendLevelWinData(game.GetCurrentLevel().levelID, game.GetCurrentLevelTimerMicroseconds());
             }
             catch (Exception e)
             {
                 MelonLogger.Error($"error occured when winning :( {e}");
             }
         }
+
+        private static void SendLevelWinData(string levelId, long timeMicroseconds)
+        {
+            string url = EventTracker.Settings.ApiServer.Value;
+            string name = EventTracker.Settings.LeaderboardName.Value;
+            string password = EventTracker.Settings.ApiPassword.Value;
+            if (string.IsNullOrEmpty(url)) return;
+
+            try
+            {
+                var data = new Dictionary<string, object>
+                {
+                    { "name", name },
+                    { "levelId", levelId },
+                    { "time", timeMicroseconds },
+                    { "password", password }
+                };
+                string json = JSON.Dump(data);
+
+                System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try
+                    {
+                        using (var client = new System.Net.WebClient())
+                        {
+                            client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+                            client.UploadString(url, "POST", json);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MelonLogger.Error($"Failed to send level win data: {ex}");
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Error($"Error queueing level win data: {e}");
+            }
+        }
+
+        public static void ExportDataAsJSON()
+        {
+            try
+            {
+                Game game = Singleton<Game>.Instance;
+
+                string name = EventTracker.Settings.LeaderboardName.Value;
+
+                var levels = new List<object>();
+                var gameData = game.GetGameData();
+                foreach (var campaign in gameData.campaigns)
+                {
+                    foreach (var mission in campaign.missionData)
+                    {
+                        foreach (var l in mission.levels)
+                        {
+                            levels.Add(new Dictionary<string, string>
+                            {
+                                { "id", l.levelID },
+                                { "name", l.levelDisplayName },
+                                { "betterName", LocalizationManager.GetTranslation(l.levelDisplayName)},
+                                { "chapter", LocalizationManager.GetTranslation(mission.missionDisplayName) }
+                            });
+                        }
+                    }
+                }
+
+                var data = new Dictionary<string, object>
+                {
+                    { "allLevels", levels }
+                };
+                string json = JSON.Dump(data, EncodeOptions.PrettyPrint);
+                string filename = "levelDataExport.json";
+
+                string path = TrackerHolder.GetGhostDirectory();
+                //string threeParentsUp = @"..\..\..";
+                //path = Path.GetFullPath(Path.Combine(path, threeParentsUp));
+                File.WriteAllText(Path.Combine(path, filename), json);
+                MelonLogger.Msg($"Exported level data to {Path.Combine(path, filename)}");
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Error($"Failed to export data: {e}");
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MechController), "Die")]
         private static void OnPlayerDie(ref bool restartImmediately, ref bool playRestartSound)
