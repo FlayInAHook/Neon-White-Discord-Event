@@ -287,7 +287,7 @@ namespace EventTracker
                 long best = GameDataManager.levelStats[game.GetCurrentLevel().levelID].GetTimeBestMicroseconds();
                 EventTracker.holder.Reveal(best > game.GetCurrentLevelTimerMicroseconds(), !dnf);
 
-                SendLevelWinData(game.GetCurrentLevel().levelID, game.GetCurrentLevelTimerMicroseconds());
+                if (!dnf) SendLevelWinData(game.GetCurrentLevel().levelID, game.GetCurrentLevelTimerMicroseconds());
             }
             catch (Exception e)
             {
@@ -295,7 +295,7 @@ namespace EventTracker
             }
         }
 
-        private static void SendLevelWinData(string levelId, long timeMicroseconds)
+        private static void SendLevelWinData(string levelId, long timeMicroseconds, string status = "completed")
         {
             string url = EventTracker.Settings.ApiServer.Value;
             string name = EventTracker.Settings.LeaderboardName.Value;
@@ -309,7 +309,8 @@ namespace EventTracker
                     { "name", name },
                     { "levelId", levelId },
                     { "time", timeMicroseconds },
-                    { "password", password }
+                    { "password", password },
+                    { "status", status }
                 };
                 string json = JSON.Dump(data);
 
@@ -398,11 +399,29 @@ namespace EventTracker
         private static void OnPlayerDie(ref bool restartImmediately, ref bool playRestartSound)
         {
             if (!EventTracker.holder && EventTracker.holder.revealed) return;
+
+            Game game = Singleton<Game>.Instance;
+            if (game != null && game.GetCurrentLevel() != null && game.GetCurrentLevelTimerMicroseconds() > 0)
+            {
+                SendLevelWinData(game.GetCurrentLevel().levelID, game.GetCurrentLevelTimerMicroseconds(), "cancelled");
+            }
+
             if (restartImmediately)
                 EventTracker.holder.Reveal(false, true, true);
             else
                 EventTracker.holder.PushText("Death", new Color32(235, 23, 66, 255), !EventTracker.JSON.GetSetting("death"), true);
         }
+
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(Game), "RestartLevel")]
+        private static void OnRestartLevel()
+        {
+            Game game = Singleton<Game>.Instance;
+            if (game != null && game.GetCurrentLevel() != null && game.GetCurrentLevelTimerMicroseconds() > 0)
+            {
+                SendLevelWinData(game.GetCurrentLevel().levelID, game.GetCurrentLevelTimerMicroseconds(), "cancelled");
+            }
+        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MainMenu), "SetState")]
