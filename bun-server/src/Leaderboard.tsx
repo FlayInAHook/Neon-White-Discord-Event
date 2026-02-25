@@ -40,6 +40,10 @@ export function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const [leaderboardType, setLeaderboardType] = useState<"solo" | "team">("solo");
+  const [activePlayersGlobal, setActivePlayersGlobal] = useState<{ name: string, levelId: string }[]>([]);
+  const [activePlayersLevel, setActivePlayersLevel] = useState<{ name: string, levelId: string }[]>([]);
+
+  const activePlayerNamesGlobal = useMemo(() => activePlayersGlobal.map(p => p.name), [activePlayersGlobal]);
 
   const allPlayers = useMemo(() => {
     return Array.from(new Set(entries.map(e => e.name))).sort();
@@ -69,6 +73,19 @@ export function Leaderboard() {
     }
   };
 
+  const fetchActivePlayers = async () => {
+    try {
+      const res = await fetch("/api/active-players");
+      if (res.ok) {
+        const data = await res.json();
+        setActivePlayersGlobal(data.global);
+        setActivePlayersLevel(data.level);
+      }
+    } catch (e) {
+      console.error("Failed to fetch active players", e);
+    }
+  };
+
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
@@ -90,11 +107,15 @@ export function Leaderboard() {
   useEffect(() => {
     fetchConfig();
     fetchTeams();
+    fetchActivePlayers();
   }, []);
 
   useEffect(() => {
     fetchLeaderboard();
-    const interval = setInterval(fetchLeaderboard, 10000); // 10s
+    const interval = setInterval(() => {
+      fetchLeaderboard();
+      fetchActivePlayers();
+    }, 10000); // 10s
     const teamsInterval = setInterval(fetchTeams, 30000); // 30s
     return () => {
       clearInterval(interval);
@@ -210,16 +231,18 @@ export function Leaderboard() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto mt-8 space-y-8 pb-16">
-      <div className="text-center space-y-2 relative">
-        <h1 className="text-4xl font-bold tracking-tight">Neon White Leaderboard</h1>
-        <p className="text-xl text-muted-foreground">Chapter: {config.currentChapter}</p>
+    <div className="w-full max-w-8xl mx-auto mt-8 space-y-8 pb-16">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-2">
+        <div className="text-center sm:text-left space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight">Neon White Leaderboard</h1>
+          <p className="text-xl text-muted-foreground">Chapter: {config.currentChapter}</p>
+        </div>
 
-        <div className="absolute top-0 right-4 flex items-center gap-3 bg-muted/50 p-3 rounded-lg border">
-          <label htmlFor="user-select" className="text-sm font-medium text-muted-foreground">Highlight Me:</label>
+        <div className="flex items-center w-full sm:w-auto gap-3 bg-muted/50 p-3 rounded-lg border">
+          <label htmlFor="user-select" className="text-sm font-medium text-muted-foreground shrink-0">Highlight Me:</label>
           <select
             id="user-select"
-            className="bg-background border rounded-md px-3 py-1.5 text-sm"
+            className="bg-background border rounded-md px-3 py-1.5 text-sm w-full min-w-0 sm:w-48 truncate"
             value={currentUser || ""}
             onChange={(e) => setCurrentUser(e.target.value || null)}
           >
@@ -269,7 +292,12 @@ export function Leaderboard() {
                   return (
                     <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell className={isHighlighted ? "font-bold" : ""}>{player.name}</TableCell>
+                      <TableCell className={isHighlighted ? "font-bold" : ""}>
+                        {player.name}
+                        {leaderboardType === "solo"
+                          ? (activePlayerNamesGlobal.includes(player.name) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)
+                          : (player.name.split(" & ").some(n => activePlayerNamesGlobal.includes(n)) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)}
+                      </TableCell>
                       <TableCell className="text-right font-mono">{player.averageRank.toFixed(2)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
                     </TableRow>
@@ -305,7 +333,12 @@ export function Leaderboard() {
                   return (
                     <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
-                      <TableCell className={isHighlighted ? "font-bold" : ""}>{player.name}</TableCell>
+                      <TableCell className={isHighlighted ? "font-bold" : ""}>
+                        {player.name}
+                        {leaderboardType === "solo"
+                          ? (activePlayerNamesGlobal.includes(player.name) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)
+                          : (player.name.split(" & ").some(n => activePlayerNamesGlobal.includes(n)) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)}
+                      </TableCell>
                       <TableCell className="text-right font-mono">{player.points}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
                     </TableRow>
@@ -347,10 +380,13 @@ export function Leaderboard() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {levelEntries.slice(0, 10).map((entry, index) => (
+                        {levelEntries.slice(0, 15).map((entry, index) => (
                           <TableRow key={entry.id} className={entry.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
                             <TableCell className="font-medium">{index + 1}</TableCell>
-                            <TableCell className={`truncate max-w-[120px] ${entry.name === currentUser ? "font-bold" : ""}`} title={entry.name}>{entry.name}</TableCell>
+                            <TableCell className={`truncate max-w-[120px] ${entry.name === currentUser ? "font-bold" : ""}`} title={entry.name}>
+                              {entry.name}
+                              {activePlayersLevel.some(ap => ap.name === entry.name && ap.levelId === level.id) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />}
+                            </TableCell>
                             <TableCell className="text-right text-muted-foreground">{entry.tries || 1}</TableCell>
                             <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
                           </TableRow>
@@ -404,17 +440,20 @@ export function Leaderboard() {
                         <TableRow>
                           <TableHead className="w-[60px]">#</TableHead>
                           <TableHead>Team</TableHead>
-                          <TableHead className="text-right">Combined Tries</TableHead>
-                          <TableHead className="text-right">Combined Time</TableHead>
+                          <TableHead className="text-right">Tries</TableHead>
+                          <TableHead className="text-right">Best Time</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {teamTimes.slice(0, 10).map((teamInfo, index) => {
+                        {teamTimes.slice(0, 15).map((teamInfo, index) => {
                           const isMyTeam = teamInfo!.name1 === currentUser || teamInfo!.name2 === currentUser;
                           return (
                             <TableRow key={index} className={isMyTeam ? "bg-primary/20 hover:bg-primary/30" : ""}>
                               <TableCell className="font-medium">{index + 1}</TableCell>
-                              <TableCell className={`truncate max-w-[120px] ${isMyTeam ? "font-bold" : ""}`} title={teamInfo!.teamName}>{teamInfo!.teamName}</TableCell>
+                              <TableCell className={`truncate max-w-[120px] ${isMyTeam ? "font-bold" : ""}`} title={teamInfo!.teamName}>
+                                {teamInfo!.teamName}
+                                {(activePlayersLevel.some(ap => ap.name === teamInfo!.name1 && ap.levelId === level.id) || activePlayersLevel.some(ap => ap.name === teamInfo!.name2 && ap.levelId === level.id)) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />}
+                              </TableCell>
                               <TableCell className="text-right text-muted-foreground">{teamInfo!.tries}</TableCell>
                               <TableCell className="text-right font-mono">{formatTime(teamInfo!.time)}</TableCell>
                             </TableRow>

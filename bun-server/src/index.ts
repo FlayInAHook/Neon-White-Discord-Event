@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { addEntry, getBestTimes, getLeaderboard, getTeams, getUserDiscordId } from "./db";
+import { addEntry, getActivePlayers, getBestTimes, getLeaderboard, getTeams, getUserDiscordId } from "./db";
 import { initDiscordBot } from "./discordBot";
 import index from "./index.html";
 import levelData from "./levelDataExport.json";
@@ -7,6 +7,8 @@ import levelData from "./levelDataExport.json";
 const API_PASSWORD = process.env.API_PASSWORD || "default_password";
 const CURRENT_CHAPTER = process.env.CURRENT_CHAPTER || "Wiedergeburt";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
+const ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS || "180", 10);
+const ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS || "60", 10);
 
 function formatTime(microseconds: number) {
   const ms = Math.floor(microseconds / 1000);
@@ -41,6 +43,14 @@ const server = serve({
     "/api/teams": {
       async GET() {
         return Response.json(getTeams());
+      }
+    },
+
+    "/api/active-players": {
+      async GET() {
+        const globalActive = getActivePlayers(ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS);
+        const levelActive = getActivePlayers(ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS);
+        return Response.json({ global: globalActive, level: levelActive });
       }
     },
 

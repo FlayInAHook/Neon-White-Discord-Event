@@ -174,3 +174,11 @@ export function getTeams(): { name1: string, name2: string }[] {
   const query = db.query(`SELECT * FROM teams`);
   return query.all() as { name1: string, name2: string }[];
 }
+
+export function getActivePlayers(thresholdSeconds: number): { name: string, levelId: string }[] {
+  const query = db.query(`
+    SELECT DISTINCT name, levelId FROM leaderboard
+    WHERE created_at >= datetime('now', '-' || $seconds || ' seconds')
+  `);
+  return query.all({ $seconds: thresholdSeconds }) as { name: string, levelId: string }[];
+}
