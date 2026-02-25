@@ -155,7 +155,7 @@ namespace EventTracker
             {
                 MainCategory = MelonPreferences.CreateCategory("Event Tracker");
 
-                Enabled = MainCategory.CreateEntry("Enabled", true);
+                Enabled = MainCategory.CreateEntry("Enabled", false);
                 X = MainCategory.CreateEntry("XNew", 0.015625f, display_name: "X Position", validator: new ValueRange<float>(0, 1)); // 30 / 1920
                 Y = MainCategory.CreateEntry("YNew", 0.225f, display_name: "Y Position", validator: new ValueRange<float>(0, 1)); // 243 / 1080 or smth of the sort
                 Scale = MainCategory.CreateEntry("Scale", 1f, validator: new ValueRange<float>(0, 5));
@@ -208,11 +208,11 @@ namespace EventTracker
                 DefaultShape = AdvancedCategory.CreateEntry("Trigger Default Shape", PlacementShapes.Plane, description: "The default shape to use.\nPlanes are one-sided, so they will be placed opposite to where you face, completely vertical to make it easier.");
                 DefaultSize = AdvancedCategory.CreateEntry("Trigger Default Size", 15f, description: "The default size of the placed trigger.", validator: new MinOnly<float>(0));
 
-                MegaGeilCategory = MelonPreferences.CreateCategory("Mega Geil Event");
+                MegaGeilCategory = MelonPreferences.CreateCategory("!! Mega Geil Event !!");
                 LeaderboardName = MegaGeilCategory.CreateEntry("Leaderboard Name", "Player", description: "Your name on the leaderboard.");
                 ApiServer = MegaGeilCategory.CreateEntry("API Server", "https://neonwhite.flayinahook.de/api", description: "The API server to send your times to.");
                 ApiPassword = MegaGeilCategory.CreateEntry("API Password", "", description: "The password to send with your times.");
-                ExportKey = MegaGeilCategory.CreateEntry("Export Data Key", KeyCode.F6, description: "Pressing the assigned key will export level win data to a .json file.");
+                ExportKey = MegaGeilCategory.CreateEntry("[DEBUG] Export Data Key", KeyCode.F6, description: "Pressing the assigned key will export level name data to a .json file.");
             }
         }
 
