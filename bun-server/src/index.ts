@@ -1,5 +1,5 @@
 import { serve } from "bun";
-import { addEntry, getActivePlayers, getBestTimes, getLeaderboard, getTeams, getUserDiscordId } from "./db";
+import { addEntry, getActivePlayers, getBestTimes, getLeaderboard, getTeams, getUserDiscordId, getUserLevelHistory } from "./db";
 import { initDiscordBot } from "./discordBot";
 import index from "./index.html";
 import levelData from "./levelDataExport.json";
@@ -9,6 +9,7 @@ const CURRENT_CHAPTER = process.env.CURRENT_CHAPTER || "Wiedergeburt";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS || "180", 10);
 const ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS || "60", 10);
+const DISCORD_BOT_ACTIVE = process.env.DISCORD_BOT_ACTIVE !== "false";
 
 function formatTime(microseconds: number) {
   const ms = Math.floor(microseconds / 1000);
@@ -51,6 +52,21 @@ const server = serve({
         const globalActive = getActivePlayers(ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS);
         const levelActive = getActivePlayers(ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS);
         return Response.json({ global: globalActive, level: levelActive });
+      }
+    },
+
+    "/api/user-history": {
+      async GET(req) {
+        const url = new URL(req.url);
+        const name = url.searchParams.get("name");
+        const levelId = url.searchParams.get("levelId");
+
+        if (!name || !levelId) {
+          return new Response("Missing name or levelId", { status: 400 });
+        }
+
+        const history = getUserLevelHistory(name, levelId);
+        return Response.json(history);
       }
     },
 
@@ -150,4 +166,8 @@ const server = serve({
 console.log(`🚀 Server running at ${server.url}`);
 
 // Initialize the Discord Bot functionality
-initDiscordBot();
+if (DISCORD_BOT_ACTIVE) {
+  initDiscordBot();
+} else {
+  console.log("🤖 Discord Bot is disabled via DISCORD_BOT_ACTIVE env variable.");
+}

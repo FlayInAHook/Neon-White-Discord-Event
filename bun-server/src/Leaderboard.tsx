@@ -10,6 +10,7 @@ import {
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { useEffect, useMemo, useState } from "react";
+import { RunHistoryDialog } from "./RunHistoryDialog";
 
 const currentUserAtom = atomWithStorage<string | null>("neon-white-current-user", null);
 
@@ -42,6 +43,7 @@ export function Leaderboard() {
   const [leaderboardType, setLeaderboardType] = useState<"solo" | "team">("solo");
   const [activePlayersGlobal, setActivePlayersGlobal] = useState<{ name: string, levelId: string }[]>([]);
   const [activePlayersLevel, setActivePlayersLevel] = useState<{ name: string, levelId: string }[]>([]);
+  const [selectedHistory, setSelectedHistory] = useState<{ playerName: string, levelId: string, levelName: string } | null>(null);
 
   const activePlayerNamesGlobal = useMemo(() => activePlayersGlobal.map(p => p.name), [activePlayersGlobal]);
 
@@ -381,7 +383,11 @@ export function Leaderboard() {
                       </TableHeader>
                       <TableBody>
                         {levelEntries.slice(0, 15).map((entry, index) => (
-                          <TableRow key={entry.id} className={entry.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : ""}>
+                          <TableRow
+                            key={entry.id}
+                            className={`cursor-pointer ${entry.name === currentUser ? "bg-primary/20 hover:bg-primary/30" : "hover:bg-muted/50"}`}
+                            onClick={() => setSelectedHistory({ playerName: entry.name, levelId: level.id, levelName: level.name })}
+                          >
                             <TableCell className="font-medium">{index + 1}</TableCell>
                             <TableCell className={`truncate max-w-[120px] ${entry.name === currentUser ? "font-bold" : ""}`} title={entry.name}>
                               {entry.name}
@@ -472,6 +478,16 @@ export function Leaderboard() {
             })}
           </div>
         </div>
+      )}
+
+      {selectedHistory && (
+        <RunHistoryDialog
+          open={!!selectedHistory}
+          onOpenChange={(open) => !open && setSelectedHistory(null)}
+          playerName={selectedHistory.playerName}
+          levelId={selectedHistory.levelId}
+          levelName={selectedHistory.levelName}
+        />
       )}
     </div>
   );

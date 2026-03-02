@@ -136,6 +136,15 @@ export function getBestTimes(): LeaderboardEntry[] {
   return query.all() as LeaderboardEntry[];
 }
 
+export function getUserLevelHistory(name: string, levelId: string): LeaderboardEntry[] {
+  const query = db.query(`
+    SELECT * FROM leaderboard
+    WHERE name = $name AND levelId = $levelId
+    ORDER BY created_at ASC
+  `);
+  return query.all({ $name: name, $levelId: levelId }) as LeaderboardEntry[];
+}
+
 // User mapping and team helpers
 export function linkAccount(name: string, discordId: string) {
   const query = db.query(`
