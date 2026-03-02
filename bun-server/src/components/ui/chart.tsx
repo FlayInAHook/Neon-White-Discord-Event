@@ -1,5 +1,6 @@
 "use client"
 
+import { throttle } from "es-toolkit"
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import type { LegendPayload } from "recharts/types/component/DefaultLegendContent"
@@ -10,6 +11,7 @@ import type {
 } from "recharts/types/component/DefaultTooltipContent"
 import type { Props as LegendProps } from "recharts/types/component/Legend"
 import type { TooltipContentProps } from "recharts/types/component/Tooltip"
+
 
 import { cn } from "@/lib/utils"
 
@@ -142,6 +144,26 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+export function useThrottledState(defaultValue?: number) {
+  const [state, setState] = React.useState<number | undefined>(defaultValue);
+  const throttledSetState = React.useMemo(
+    () =>
+      throttle(
+        (props: any) => {
+          setState(Number.isNaN(props.activeTooltipIndex) ? undefined : Number(props.activeTooltipIndex));
+        },
+        50,
+        { edges: ['trailing'] },
+      ),
+    [setState],
+  );
+
+  const clearState = React.useCallback(() => {
+    setState(undefined);
+  }, [setState]);
+  return [state, throttledSetState, clearState] as const;
+}
+
 function ChartTooltipContent({
   active,
   payload,
@@ -158,6 +180,18 @@ function ChartTooltipContent({
   labelKey,
 }: CustomTooltipProps) {
   const { config } = useChart()
+
+  const [throttledIndex, setThrottledIndex, clearThrottledIndex] = useThrottledState();
+
+  // Recharts passes `payload` and `active`, but Recharts updates it continuously.
+  // We can track the active state by observing the current tooltip payload index,
+  // or use the throttled active state.
+  React.useEffect(() => {
+    if (active) setThrottledIndex({ activeTooltipIndex: 1 }); // We are mimicking the prop structure of the event handler
+    else clearThrottledIndex();
+  }, [active, payload, setThrottledIndex, clearThrottledIndex]);
+
+  const throttledActive = throttledIndex !== undefined;
 
   const tooltipLabel = React.useMemo(() => {
     if (hideLabel || !payload?.length) {
@@ -199,7 +233,7 @@ function ChartTooltipContent({
     labelKey,
   ])
 
-  if (!active || !payload?.length) {
+  if (!throttledActive || !payload?.length) {
     return null
   }
 

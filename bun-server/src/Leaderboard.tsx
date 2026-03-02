@@ -487,6 +487,7 @@ export function Leaderboard() {
           playerName={selectedHistory.playerName}
           levelId={selectedHistory.levelId}
           levelName={selectedHistory.levelName}
+          allowResets={false}
         />
       )}
     </div>
