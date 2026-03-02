@@ -295,10 +295,10 @@ export function Leaderboard() {
                     <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell className={isHighlighted ? "font-bold" : ""}>
-                        {player.name}
                         {leaderboardType === "solo"
                           ? (activePlayerNamesGlobal.includes(player.name) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)
                           : (player.name.split(" & ").some(n => activePlayerNamesGlobal.includes(n)) && <span className="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse ml-2" title="Recently active" />)}
+                        {player.name}
                       </TableCell>
                       <TableCell className="text-right font-mono">{player.averageRank.toFixed(2)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {config.levels.length}</TableCell>
