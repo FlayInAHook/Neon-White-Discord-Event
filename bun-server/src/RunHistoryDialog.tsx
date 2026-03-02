@@ -164,7 +164,7 @@ export function RunHistoryDialog({ open, onOpenChange, playerName, levelId, leve
         </DialogHeader>
 
         <div className="mb-4 flex gap-6 items-center">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
+          {/* <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
               checked={showNonPB}
@@ -172,7 +172,7 @@ export function RunHistoryDialog({ open, onOpenChange, playerName, levelId, leve
               className="rounded border-gray-300 text-primary focus:ring-primary"
             />
             Show Completed (Non-PB) Runs
-          </label>
+          </label>*/}
           {allowResets && (
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
@@ -186,14 +186,14 @@ export function RunHistoryDialog({ open, onOpenChange, playerName, levelId, leve
           )}
         </div>
 
-        <div className="flex-1 min-h-[65vh] flex flex-col">
+        <div className="flex-1 min-h-[65vh] flex flex-col relative h-full">
           {loading ? (<></>
           ) : history.length === 0 ? (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
               No runs found for this user and level.
             </div>
           ) : (
-            <ChartContainer config={chartConfig} className="w-full h-full">
+            <ChartContainer config={chartConfig} className="w-full max-h-[80vh]">
               <ComposedChart data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis
