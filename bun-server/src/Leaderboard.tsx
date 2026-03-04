@@ -1,4 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -9,10 +11,8 @@ import {
 } from "@/components/ui/table";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Equal, Minus, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Minus, Equal, Trophy } from "lucide-react";
 import { RunHistoryDialog } from "./RunHistoryDialog";
 
 const currentUserAtom = atomWithStorage<string | null>("neon-white-current-user", null);
@@ -586,7 +586,7 @@ export function Leaderboard() {
         <OverallCard
           title="Weighted Points"
           statHeader="Points"
-          description="Higher is better. Each level awards (players − rank + 1) points. 1st place earns an extra 5 bonus points."
+          description="Higher is better. 1st place earns an extra 3 bonus points. (2nd 2 points, 3rd 1 point)"
           rows={weighted}
           levelCount={config.levels.length}
           currentUser={currentUser}
