@@ -607,13 +607,15 @@ export function Leaderboard() {
 
       {/* Head to Head summary */}
       {currentUser && opponent && leaderboardType === "solo" && (
-        <div className="space-y-4 pt-4">
-          <h2 className="text-2xl font-bold tracking-tight">
-            <span className="text-sky-500">{currentUser}</span>
-            <span className="text-muted-foreground mx-3">vs</span>
-            <span className="text-amber-500">{opponent}</span>
-          </h2>
-          <div className="rounded-lg border overflow-hidden">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <span className="text-sky-500">{currentUser}</span>
+              <span className="text-muted-foreground mx-3">vs</span>
+              <span className="text-amber-500">{opponent}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -640,8 +642,8 @@ export function Leaderboard() {
                 })}
               </TableBody>
             </Table>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Per-level leaderboards – Solo */}
