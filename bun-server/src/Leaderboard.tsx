@@ -110,6 +110,8 @@ function OverallCard({
   const hasOpponent = !!opponent;
   const meClass = hasOpponent ? "bg-sky-500/20 hover:bg-sky-500/30" : "bg-primary/20 hover:bg-primary/30";
   const meFontColor = hasOpponent ? "text-sky-500" : "";
+  const opponentClass = "bg-amber-500/20 hover:bg-amber-500/30";
+  const opponentFontColor = "text-amber-500";
   return (
     <Card>
       <CardHeader>
@@ -140,17 +142,16 @@ function OverallCard({
               );
               let rowClass = "";
               if (isHighlighted) rowClass = meClass;
-              else if (isOpponent) rowClass = "bg-amber-500/20 hover:bg-amber-500/30";
+              else if (isOpponent) rowClass = opponentClass;
               let nameFontClass = "";
               if (isHighlighted) nameFontClass = `font-bold ${meFontColor}`;
-              else if (isOpponent) nameFontClass = "font-bold";
+              else if (isOpponent) nameFontClass = `font-bold ${opponentFontColor}`;
               return (
                 <TableRow key={player.name} className={rowClass}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell className={`${nameFontClass}`}>
                     {player.isActive && <ActiveDot />}
                     {player.name}
-                    {isOpponent && <span className="ml-2 text-xs text-amber-500 font-normal">(opponent)</span>}
                   </TableCell>
                   <TableCell className="text-right font-mono">{player.stat}</TableCell>
                   <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {levelCount}</TableCell>
@@ -186,6 +187,8 @@ function LevelCard({
 }>) {
   const meRowClass = hasOpponent ? "bg-sky-500/20 hover:bg-sky-500/30" : "bg-primary/20 hover:bg-primary/30";
   const meFontColor = hasOpponent ? "text-sky-500" : "";
+  const opponentClass = "bg-amber-500/20 hover:bg-amber-500/30";
+  const opponentFontColor = "text-amber-500";
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-3">
@@ -205,10 +208,10 @@ function LevelCard({
             {entries.slice(0, 15).map((entry, index) => {
               let rowClass = "hover:bg-muted/50";
               if (entry.isCurrentUser) rowClass = meRowClass;
-              else if (entry.isOpponent) rowClass = "bg-amber-500/20 hover:bg-amber-500/30";
+              else if (entry.isOpponent) rowClass = opponentClass;
               let nameFontClass = "";
               if (entry.isCurrentUser) nameFontClass = `font-bold ${meFontColor}`;
-              else if (entry.isOpponent) nameFontClass = "font-bold";
+              else if (entry.isOpponent) nameFontClass = `font-bold ${opponentFontColor}`;
               return (
                 <TableRow
                   key={entry.key}
@@ -219,7 +222,6 @@ function LevelCard({
                   <TableCell className={nameFontClass} title={entry.name}>
                     {entry.isActive && <ActiveDot />}
                     {entry.name}
-                    {entry.isOpponent && <span className="ml-2 text-xs text-amber-500 font-normal">(opponent)</span>}
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">{entry.tries}</TableCell>
                   <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
@@ -547,52 +549,10 @@ export function Leaderboard() {
     <div className="w-full max-w-8xl mx-auto mt-8 space-y-8 pb-16">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 mb-2">
+      <div className="flex flex-col items-center sm:items-start gap-2 mb-2">
         <div className="text-center sm:text-left space-y-2">
           <h1 className="text-4xl font-bold tracking-tight">Neon White Leaderboard</h1>
           <p className="text-xl text-muted-foreground">Chapter: {config.currentChapter}</p>
-        </div>
-
-        <div className="flex flex-wrap items-center w-full sm:w-auto gap-3 bg-muted/50 p-3 rounded-lg border">
-          <label htmlFor="user-select" className="text-sm font-medium text-muted-foreground shrink-0">Highlight Me:</label>
-          <Select value={currentUser ?? ""} onValueChange={(v) => setCurrentUser(v || null)}>
-            <SelectTrigger id="user-select" className="w-full sm:w-48">
-              <SelectValue placeholder="None" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">None</SelectItem>
-              {allPlayers.map(p => (
-                <SelectItem key={p} value={p}>{p}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {currentUser && (
-            <>
-              <span className="text-muted-foreground text-sm font-medium shrink-0">vs</span>
-              <div className="flex items-center gap-2">
-                <label htmlFor="opponent-select" className="text-sm font-medium text-amber-500 shrink-0">Head to Head:</label>
-                <Select value={opponent ?? ""} onValueChange={(v) => setOpponent(v || null)}>
-                  <SelectTrigger id="opponent-select" className="w-full sm:w-48 border-amber-500/50">
-                    <SelectValue placeholder="None" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None</SelectItem>
-                    {allPlayers.filter(p => p !== currentUser).map(p => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-          <label htmlFor="show-micros" className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none shrink-0">
-            <Switch
-              id="show-micros"
-              checked={showMicroseconds}
-              onCheckedChange={setShowMicroseconds}
-            />
-            Microseconds
-          </label>
         </div>
       </div>
 
@@ -658,9 +618,9 @@ export function Leaderboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Level</TableHead>
-                  <TableHead className="text-right text-sky-500 bg-sky-500/10">{currentUser}</TableHead>
+                  <TableHead className="text-right text-sky-500 bg-sky-500/10 font-bold">{currentUser}</TableHead>
                   <TableHead className="text-center w-[50px]">Winner</TableHead>
-                  <TableHead className="text-left text-amber-500 bg-amber-500/10">{opponent}</TableHead>
+                  <TableHead className="text-left text-amber-500 bg-amber-500/10 font-bold">{opponent}</TableHead>
                   <TableHead className="text-right">Diff</TableHead>
                 </TableRow>
               </TableHeader>
@@ -762,6 +722,47 @@ export function Leaderboard() {
           allowResets={false}
         />
       )}
+
+      {/* Fixed bottom settings bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex flex-wrap items-center justify-center gap-3 bg-background/95 backdrop-blur border-t px-4 py-2">
+        <label htmlFor="user-select" className="text-sm font-medium text-muted-foreground shrink-0">Highlight Me:</label>
+        <Select value={currentUser ?? ""} onValueChange={(v) => setCurrentUser(v || null)}>
+          <SelectTrigger id="user-select" className="w-40">
+            <SelectValue placeholder="None" />
+          </SelectTrigger>
+          <SelectContent side="top">
+            <SelectItem value="">None</SelectItem>
+            {allPlayers.map(p => (
+              <SelectItem key={p} value={p}>{p}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {currentUser && (
+          <>
+            <span className="text-muted-foreground text-sm font-medium shrink-0">vs</span>
+            <label htmlFor="opponent-select" className="text-sm font-medium text-amber-500 shrink-0">Head to Head:</label>
+            <Select value={opponent ?? ""} onValueChange={(v) => setOpponent(v || null)}>
+              <SelectTrigger id="opponent-select" className="w-40 border-amber-500/50">
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent side="top">
+                <SelectItem value="">None</SelectItem>
+                {allPlayers.filter(p => p !== currentUser).map(p => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        )}
+        <label htmlFor="show-micros" className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none shrink-0">
+          <Switch
+            id="show-micros"
+            checked={showMicroseconds}
+            onCheckedChange={setShowMicroseconds}
+          />
+          Show Microseconds
+        </label>
+      </div>
     </div>
   );
 }
