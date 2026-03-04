@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,10 +9,13 @@ import {
 } from "@/components/ui/table";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useEffect, useMemo, useState } from "react";
 import { RunHistoryDialog } from "./RunHistoryDialog";
 
 const currentUserAtom = atomWithStorage<string | null>("neon-white-current-user", null);
+const showMicrosecondsAtom = atomWithStorage<boolean>("neon-white-show-microseconds", false);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,6 +88,7 @@ function EmptyRow({ colSpan, message }: Readonly<{ colSpan: number; message: str
 function OverallCard({
   title,
   statHeader,
+  description,
   rows,
   levelCount,
   currentUser,
@@ -92,6 +96,7 @@ function OverallCard({
 }: Readonly<{
   title: string;
   statHeader: string;
+  description?: string;
   rows: OverallRow[];
   levelCount: number;
   currentUser: string | null;
@@ -101,6 +106,7 @@ function OverallCard({
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
+        {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent>
         <Table>
@@ -199,15 +205,21 @@ function LevelCard({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatTime(microseconds: number): string {
-  const ms = Math.floor(microseconds / 1000);
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  const milliseconds = ms % 1000;
+function formatTime(microseconds: number, showMicros = false): string {
+  const totalMs = Math.floor(microseconds / 1000);
+  const minutes = Math.floor(totalMs / 60000);
+  const seconds = Math.floor((totalMs % 60000) / 1000);
+  const milliseconds = totalMs % 1000;
+  const remainingMicros = microseconds % 1000;
+
+  const msPart = milliseconds.toString().padStart(3, "0");
+  const microsPart = showMicros ? remainingMicros.toString().padStart(3, "0") : "";
+  const fraction = showMicros ? `${msPart}|${microsPart}` : msPart;
+
   if (minutes > 0) {
-    return `${minutes}:${seconds.toString().padStart(2, "0")}.${milliseconds.toString().padStart(3, "0")}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}.${fraction}`;
   }
-  return `${seconds}.${milliseconds.toString().padStart(3, "0")}`;
+  return `${seconds}.${fraction}`;
 }
 
 function isParticipantActive(name: string, activeNames: string[], mode: "solo" | "team"): boolean {
@@ -262,6 +274,7 @@ export function Leaderboard() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [config, setConfig] = useState<Config | null>(null);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
+  const [showMicroseconds, setShowMicroseconds] = useAtom(showMicrosecondsAtom);
   const [leaderboardType, setLeaderboardType] = useState<"solo" | "team">("solo");
   const [activePlayersGlobal, setActivePlayersGlobal] = useState<{ name: string; levelId: string }[]>([]);
   const [activePlayersLevel, setActivePlayersLevel] = useState<{ name: string; levelId: string }[]>([]);
@@ -421,7 +434,7 @@ export function Leaderboard() {
       .filter(p => (statsMap[p]?.levelsPlayed ?? 0) === config.levels.length)
       .map(p => ({
         name: p,
-        stat: formatTime(statsMap[p]?.totalTime ?? 0),
+        stat: formatTime(statsMap[p]?.totalTime ?? 0, showMicroseconds),
         levelsPlayed: statsMap[p]?.levelsPlayed ?? 0,
         isActive: isParticipantActive(p, activePlayerNamesGlobal, mode),
       }))
@@ -450,17 +463,27 @@ export function Leaderboard() {
           <p className="text-xl text-muted-foreground">Chapter: {config.currentChapter}</p>
         </div>
 
-        <div className="flex items-center w-full sm:w-auto gap-3 bg-muted/50 p-3 rounded-lg border">
+        <div className="flex flex-wrap items-center w-full sm:w-auto gap-3 bg-muted/50 p-3 rounded-lg border">
           <label htmlFor="user-select" className="text-sm font-medium text-muted-foreground shrink-0">Highlight Me:</label>
-          <select
-            id="user-select"
-            className="bg-background border rounded-md px-3 py-1.5 text-sm w-full min-w-0 sm:w-48 truncate"
-            value={currentUser || ""}
-            onChange={(e) => setCurrentUser(e.target.value || null)}
-          >
-            <option value="">None</option>
-            {allPlayers.map(p => <option key={p} value={p}>{p}</option>)}
-          </select>
+          <Select value={currentUser ?? ""} onValueChange={(v) => setCurrentUser(v || null)}>
+            <SelectTrigger id="user-select" className="w-full sm:w-48">
+              <SelectValue placeholder="None" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">None</SelectItem>
+              {allPlayers.map(p => (
+                <SelectItem key={p} value={p}>{p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <label htmlFor="show-micros" className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none shrink-0">
+            <Switch
+              id="show-micros"
+              checked={showMicroseconds}
+              onCheckedChange={setShowMicroseconds}
+            />
+            Microseconds
+          </label>
         </div>
       </div>
 
@@ -484,6 +507,7 @@ export function Leaderboard() {
         <OverallCard
           title="Average Placement"
           statHeader="Avg Rank"
+          description="Lower is better. Players who haven't submitted a time for a level are counted as last place for that level."
           rows={average}
           levelCount={config.levels.length}
           currentUser={currentUser}
@@ -492,6 +516,7 @@ export function Leaderboard() {
         <OverallCard
           title="Weighted Points"
           statHeader="Points"
+          description="Higher is better. Each level awards (players − rank + 1) points. 1st place earns an extra 5 bonus points."
           rows={weighted}
           levelCount={config.levels.length}
           currentUser={currentUser}
@@ -500,6 +525,7 @@ export function Leaderboard() {
         <OverallCard
           title="Total Time"
           statHeader="Time"
+          description="Sum of best times across all levels. Only players who have a time on every level are listed."
           rows={totalTime}
           levelCount={config.levels.length}
           currentUser={currentUser}
@@ -532,7 +558,7 @@ export function Leaderboard() {
                   levelName={level.name}
                   nameHeader="Player"
                   entries={levelEntries}
-                  formatTime={formatTime}
+                  formatTime={(t) => formatTime(t, showMicroseconds)}
                   emptyMessage="No times yet"
                 />
               );
@@ -562,7 +588,7 @@ export function Leaderboard() {
                   levelName={level.name}
                   nameHeader="Team"
                   entries={teamEntries}
-                  formatTime={formatTime}
+                  formatTime={(t) => formatTime(t, showMicroseconds)}
                   emptyMessage="No complete team times yet"
                 />
               );
