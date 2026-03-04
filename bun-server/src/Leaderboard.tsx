@@ -12,10 +12,12 @@ import { atomWithStorage } from "jotai/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useMemo, useState } from "react";
+import { Minus, Equal, Trophy } from "lucide-react";
 import { RunHistoryDialog } from "./RunHistoryDialog";
 
 const currentUserAtom = atomWithStorage<string | null>("neon-white-current-user", null);
 const showMicrosecondsAtom = atomWithStorage<boolean>("neon-white-show-microseconds", false);
+const opponentAtom = atomWithStorage<string | null>("neon-white-opponent", null);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,6 +57,7 @@ interface LevelCardEntry {
   time: number;
   isActive: boolean;
   isCurrentUser: boolean;
+  isOpponent?: boolean;
   onClick?: () => void;
 }
 
@@ -92,6 +95,7 @@ function OverallCard({
   rows,
   levelCount,
   currentUser,
+  opponent,
   leaderboardType,
 }: Readonly<{
   title: string;
@@ -100,8 +104,12 @@ function OverallCard({
   rows: OverallRow[];
   levelCount: number;
   currentUser: string | null;
+  opponent: string | null;
   leaderboardType: "solo" | "team";
 }>) {
+  const hasOpponent = !!opponent;
+  const meClass = hasOpponent ? "bg-sky-500/20 hover:bg-sky-500/30" : "bg-primary/20 hover:bg-primary/30";
+  const meFontColor = hasOpponent ? "text-sky-500" : "";
   return (
     <Card>
       <CardHeader>
@@ -125,12 +133,24 @@ function OverallCard({
                   ? player.name === currentUser
                   : player.name.includes(currentUser)
               );
+              const isOpponent = !!opponent && (
+                leaderboardType === "solo"
+                  ? player.name === opponent
+                  : player.name.includes(opponent)
+              );
+              let rowClass = "";
+              if (isHighlighted) rowClass = meClass;
+              else if (isOpponent) rowClass = "bg-amber-500/20 hover:bg-amber-500/30";
+              let nameFontClass = "";
+              if (isHighlighted) nameFontClass = `font-bold ${meFontColor}`;
+              else if (isOpponent) nameFontClass = "font-bold";
               return (
-                <TableRow key={player.name} className={isHighlighted ? "bg-primary/20 hover:bg-primary/30" : ""}>
+                <TableRow key={player.name} className={rowClass}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell className={isHighlighted ? "font-bold" : ""}>
+                  <TableCell className={`${nameFontClass}`}>
                     {player.isActive && <ActiveDot />}
                     {player.name}
+                    {isOpponent && <span className="ml-2 text-xs text-amber-500 font-normal">(opponent)</span>}
                   </TableCell>
                   <TableCell className="text-right font-mono">{player.stat}</TableCell>
                   <TableCell className="text-right text-muted-foreground">{player.levelsPlayed} / {levelCount}</TableCell>
@@ -155,13 +175,17 @@ function LevelCard({
   entries,
   formatTime,
   emptyMessage,
+  hasOpponent,
 }: Readonly<{
   levelName: string;
   nameHeader: string;
   entries: LevelCardEntry[];
   formatTime: (t: number) => string;
   emptyMessage: string;
+  hasOpponent?: boolean;
 }>) {
+  const meRowClass = hasOpponent ? "bg-sky-500/20 hover:bg-sky-500/30" : "bg-primary/20 hover:bg-primary/30";
+  const meFontColor = hasOpponent ? "text-sky-500" : "";
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-3">
@@ -178,26 +202,89 @@ function LevelCard({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {entries.slice(0, 15).map((entry, index) => (
-              <TableRow
-                key={entry.key}
-                className={`${entry.onClick ? "cursor-pointer " : ""}${entry.isCurrentUser ? "bg-primary/20 hover:bg-primary/30" : "hover:bg-muted/50"}`}
-                onClick={entry.onClick}
-              >
-                <TableCell className="font-medium">{index + 1}</TableCell>
-                <TableCell className={/*truncate max-w-[120px]*/`${entry.isCurrentUser ? "font-bold" : ""}`} title={entry.name}>
-                  {entry.isActive && <ActiveDot />}
-                  {entry.name}
-                </TableCell>
-                <TableCell className="text-right text-muted-foreground">{entry.tries}</TableCell>
-                <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
-              </TableRow>
-            ))}
+            {entries.slice(0, 15).map((entry, index) => {
+              let rowClass = "hover:bg-muted/50";
+              if (entry.isCurrentUser) rowClass = meRowClass;
+              else if (entry.isOpponent) rowClass = "bg-amber-500/20 hover:bg-amber-500/30";
+              let nameFontClass = "";
+              if (entry.isCurrentUser) nameFontClass = `font-bold ${meFontColor}`;
+              else if (entry.isOpponent) nameFontClass = "font-bold";
+              return (
+                <TableRow
+                  key={entry.key}
+                  className={`${entry.onClick ? "cursor-pointer " : ""}${rowClass}`}
+                  onClick={entry.onClick}
+                >
+                  <TableCell className="font-medium">{index + 1}</TableCell>
+                  <TableCell className={nameFontClass} title={entry.name}>
+                    {entry.isActive && <ActiveDot />}
+                    {entry.name}
+                    {entry.isOpponent && <span className="ml-2 text-xs text-amber-500 font-normal">(opponent)</span>}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground">{entry.tries}</TableCell>
+                  <TableCell className="text-right font-mono">{formatTime(entry.time)}</TableCell>
+                </TableRow>
+              );
+            })}
             {entries.length === 0 && <EmptyRow colSpan={4} message={emptyMessage} />}
           </TableBody>
         </Table>
       </CardContent>
     </Card>
+  );
+}
+
+function H2HWinnerIcon({ diff }: Readonly<{ diff: number | null }>) {
+  if (diff === null) return <Minus className="mx-auto h-4 w-4 text-muted-foreground" />;
+  if (diff < 0) return <Trophy className="mx-auto h-4 w-4 text-sky-500" />;
+  if (diff > 0) return <Trophy className="mx-auto h-4 w-4 text-amber-500" />;
+  return <Equal className="mx-auto h-4 w-4 text-muted-foreground" />;
+}
+
+function h2hDiffClass(diff: number | null): string {
+  if (diff === null || diff === 0) return "";
+  return diff < 0 ? "text-sky-500" : "text-amber-500";
+}
+
+// ---------------------------------------------------------------------------
+// HeadToHeadRow – one level row inside the H2H summary table
+// ---------------------------------------------------------------------------
+
+function HeadToHeadRow({
+  levelName,
+  userEntry,
+  opponentEntry,
+  showMicroseconds,
+}: Readonly<{
+  levelName: string;
+  userEntry: LeaderboardEntry | undefined;
+  opponentEntry: LeaderboardEntry | undefined;
+  showMicroseconds: boolean;
+}>) {
+  const diff = userEntry && opponentEntry ? userEntry.time - opponentEntry.time : null;
+  const userWins = diff !== null && diff < 0;
+  const opWins = diff !== null && diff > 0;
+  const diffColorClass = h2hDiffClass(diff);
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{levelName}</TableCell>
+      <TableCell className={`text-right font-mono bg-sky-500/10 ${userWins ? "text-sky-500 font-bold" : ""}`}>
+        {userEntry ? formatTime(userEntry.time, showMicroseconds) : <span className="text-muted-foreground">—</span>}
+      </TableCell>
+      <TableCell className="text-center"><H2HWinnerIcon diff={diff} /></TableCell>
+      <TableCell className={`font-mono bg-amber-500/10 ${opWins ? "text-amber-500 font-bold" : ""}`}>
+        {opponentEntry ? formatTime(opponentEntry.time, showMicroseconds) : <span className="text-muted-foreground">—</span>}
+      </TableCell>
+      <TableCell className="text-right font-mono text-sm text-muted-foreground">
+        {diff !== null && (
+          <span className={diffColorClass}>
+            {diff < 0 ? "-" : "+"}{formatTime(Math.abs(diff), showMicroseconds)}
+          </span>
+        )}
+        {diff === null && "—"}
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -246,7 +333,8 @@ function buildTeamLevelEntries(
   levelEntries: LeaderboardEntry[],
   teams: Team[],
   activePlayersLevel: { name: string; levelId: string }[],
-  currentUser: string | null
+  currentUser: string | null,
+  opponent: string | null
 ): LevelCardEntry[] {
   return buildTeamLevelRankings(levelEntries, teams).map(ranking => {
     const team = teams.find(t => `${t.name1} & ${t.name2}` === ranking.name)!;
@@ -261,6 +349,7 @@ function buildTeamLevelEntries(
         activePlayersLevel.some(ap => ap.name === team.name1 && ap.levelId === levelId) ||
         activePlayersLevel.some(ap => ap.name === team.name2 && ap.levelId === levelId),
       isCurrentUser: team.name1 === currentUser || team.name2 === currentUser,
+      isOpponent: !!opponent && (team.name1 === opponent || team.name2 === opponent),
     };
   });
 }
@@ -275,6 +364,7 @@ export function Leaderboard() {
   const [config, setConfig] = useState<Config | null>(null);
   const [currentUser, setCurrentUser] = useAtom(currentUserAtom);
   const [showMicroseconds, setShowMicroseconds] = useAtom(showMicrosecondsAtom);
+  const [opponent, setOpponent] = useAtom(opponentAtom);
   const [leaderboardType, setLeaderboardType] = useState<"solo" | "team">("solo");
   const [activePlayersGlobal, setActivePlayersGlobal] = useState<{ name: string; levelId: string }[]>([]);
   const [activePlayersLevel, setActivePlayersLevel] = useState<{ name: string; levelId: string }[]>([]);
@@ -476,6 +566,25 @@ export function Leaderboard() {
               ))}
             </SelectContent>
           </Select>
+          {currentUser && (
+            <>
+              <span className="text-muted-foreground text-sm font-medium shrink-0">vs</span>
+              <div className="flex items-center gap-2">
+                <label htmlFor="opponent-select" className="text-sm font-medium text-amber-500 shrink-0">Head to Head:</label>
+                <Select value={opponent ?? ""} onValueChange={(v) => setOpponent(v || null)}>
+                  <SelectTrigger id="opponent-select" className="w-full sm:w-48 border-amber-500/50">
+                    <SelectValue placeholder="None" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None</SelectItem>
+                    {allPlayers.filter(p => p !== currentUser).map(p => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
           <label htmlFor="show-micros" className="flex items-center gap-2 text-sm font-medium text-muted-foreground cursor-pointer select-none shrink-0">
             <Switch
               id="show-micros"
@@ -511,6 +620,7 @@ export function Leaderboard() {
           rows={average}
           levelCount={config.levels.length}
           currentUser={currentUser}
+          opponent={opponent}
           leaderboardType={leaderboardType}
         />
         <OverallCard
@@ -520,6 +630,7 @@ export function Leaderboard() {
           rows={weighted}
           levelCount={config.levels.length}
           currentUser={currentUser}
+          opponent={opponent}
           leaderboardType={leaderboardType}
         />
         <OverallCard
@@ -529,9 +640,49 @@ export function Leaderboard() {
           rows={totalTime}
           levelCount={config.levels.length}
           currentUser={currentUser}
+          opponent={opponent}
           leaderboardType={leaderboardType}
         />
       </div>
+
+      {/* Head to Head summary */}
+      {currentUser && opponent && leaderboardType === "solo" && (
+        <div className="space-y-4 pt-4">
+          <h2 className="text-2xl font-bold tracking-tight">
+            <span className="text-sky-500">{currentUser}</span>
+            <span className="text-muted-foreground mx-3">vs</span>
+            <span className="text-amber-500">{opponent}</span>
+          </h2>
+          <div className="rounded-lg border overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Level</TableHead>
+                  <TableHead className="text-right text-sky-500 bg-sky-500/10">{currentUser}</TableHead>
+                  <TableHead className="text-center w-[50px]">Winner</TableHead>
+                  <TableHead className="text-left text-amber-500 bg-amber-500/10">{opponent}</TableHead>
+                  <TableHead className="text-right">Diff</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {config.levels.map(level => {
+                  const userEntry = entries.find(e => e.levelId === level.id && e.name === currentUser);
+                  const opponentEntry = entries.find(e => e.levelId === level.id && e.name === opponent);
+                  return (
+                    <HeadToHeadRow
+                      key={level.id}
+                      levelName={level.name}
+                      userEntry={userEntry}
+                      opponentEntry={opponentEntry}
+                      showMicroseconds={showMicroseconds}
+                    />
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
 
       {/* Per-level leaderboards – Solo */}
       {leaderboardType === "solo" && (
@@ -549,6 +700,7 @@ export function Leaderboard() {
                   time: e.time,
                   isActive: activePlayersLevel.some(ap => ap.name === e.name && ap.levelId === level.id),
                   isCurrentUser: e.name === currentUser,
+                  isOpponent: e.name === opponent,
                   onClick: () => setSelectedHistory({ playerName: e.name, levelId: level.id, levelName: level.name }),
                 }));
 
@@ -560,6 +712,7 @@ export function Leaderboard() {
                   entries={levelEntries}
                   formatTime={(t) => formatTime(t, showMicroseconds)}
                   emptyMessage="No times yet"
+                  hasOpponent={!!opponent}
                 />
               );
             })}
@@ -579,7 +732,8 @@ export function Leaderboard() {
                 levelEntries,
                 teams,
                 activePlayersLevel,
-                currentUser
+                currentUser,
+                opponent
               );
 
               return (
@@ -590,6 +744,7 @@ export function Leaderboard() {
                   entries={teamEntries}
                   formatTime={(t) => formatTime(t, showMicroseconds)}
                   emptyMessage="No complete team times yet"
+                  hasOpponent={!!opponent}
                 />
               );
             })}
