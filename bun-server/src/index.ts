@@ -37,7 +37,7 @@ const server = serve({
       async GET() {
         return Response.json({
           currentChapter: CURRENT_CHAPTER,
-          levels: currentChapterLevels
+          levels: levelData.allLevels.filter(l => l.chapterName === CURRENT_CHAPTER)
         });
       }
     },
