@@ -5,7 +5,8 @@ import index from "./index.html";
 import levelData from "./levelDataExport.json";
 
 const API_PASSWORD = process.env.API_PASSWORD || "default_password";
-const CURRENT_CHAPTER = process.env.CURRENT_CHAPTER || "Wiedergeburt";
+const CURRENT_CHAPTER = process.env.CURRENT_CHAPTER || "32reasdf";
+const ACCEPTED_CHAPTER = process.env.ACCEPTED_CHAPTER || "adf";
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL || "";
 const ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_GLOBAL_THRESHOLD_SECONDS || "180", 10);
 const ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS = parseInt(process.env.ACTIVE_PLAYER_LEVEL_THRESHOLD_SECONDS || "60", 10);
@@ -23,7 +24,7 @@ function formatTime(microseconds: number) {
   return `${seconds}.${milliseconds.toString().padStart(3, '0')}`;
 }
 
-const currentChapterLevels = levelData.allLevels.filter(l => l.chapterName === CURRENT_CHAPTER);
+const currentChapterLevels = levelData.allLevels.filter(l => l.chapterName === ACCEPTED_CHAPTER);
 const currentChapterLevelIds = new Set(currentChapterLevels.map(l => l.id));
 
 const server = serve({
